@@ -1,6 +1,6 @@
 import pytest
 from lunchbot import parse_commands, handle_command
-from commands import respond_command
+from lunchbot import respond_command
 
 LUNCHBOT_ID = "U123"
 CHANNEL_ID ="C999999"
@@ -53,6 +53,6 @@ class TestCommandResponse(object):
         assert response == "collecting"
 
     def test_stop_command_response(self):
-        response, c = respond_command("stop", True)
-        assert c == False
+        response, c= respond_command("stop", True)
+        assert c==False
         assert response == "Time to make groups"
