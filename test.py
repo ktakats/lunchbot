@@ -1,6 +1,8 @@
 import pytest
-from lunchbot import parse_commands, handle_command
+from lunchbot import parse_commands, handle_command, make_groups
 from lunchbot import respond_command
+import random
+import math
 
 LUNCHBOT_ID = "U123"
 CHANNEL_ID ="C999999"
@@ -62,6 +64,40 @@ class TestCommandResponse(object):
         assert USER_ID in l
 
     def test_stop_command_response(self):
-        response, c, l= respond_command("stop", USER_ID, True, [])
+        lunchers = ["user1", "user2", "user3", "user4", "user5", "user6", "user7", "user8", "user9", "user10", "user11"]
+        response, c, l= respond_command("stop", USER_ID, True, lunchers)
         assert c==False
-        assert response == "Time to make groups"
+        assert "The lunch groups are" in response
+
+class TestGroupMaking(object):
+    def test_zero_people_lunching(self):
+        lunchers=[]
+        groups=make_groups(lunchers)
+        assert len(groups)==0
+
+    def test_less_than_7_lunchers(self):
+        lunchers = [USER_ID]
+        groups = make_groups(lunchers)
+        assert len(groups)==1
+
+    def test_more_than_7(self):
+        lunchers=[]
+        N=random.randint(8,100)
+        for i in range(N):
+            lunchers.append(USER_ID)
+        groups = make_groups(lunchers)
+        assert len(groups)==math.ceil(N/7.)
+
+"""
+8 - 4 4
+9 - 4 5
+10 - 5 5
+11 - 5 6
+12 - 6 6
+13 - 6 7
+14 - 7 7
+15 - 5 5 5
+
+num groups ceil(N/7)
+N/numg,
+"""

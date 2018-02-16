@@ -1,6 +1,8 @@
 import os
 import time
 import re
+import math
+import random
 from slackclient import SlackClient
 
 slack_client = SlackClient(os.environ.get('SLACK_BOT_TOKEN'))
@@ -71,8 +73,33 @@ def respond_command(command, user, collecting, lunchers):
             response = "It's not lunchtime yet."
     elif command == COMMANDS[3]:
         collecting = False
-        response = "Time to make groups"
+        groups = make_groups(lunchers)
+        response = "The lunch groups are: \n"
+        for i,group in enumerate(groups):
+            response += "Group "+str(i)+ ": "
+            for member in group:
+                response += member + " ,"
+            response +="\n"
     return response, collecting, lunchers
+
+def make_groups(lunchers):
+    N=len(lunchers)
+    num_groups = math.ceil(N/7.)
+    groups=[]
+    print(groups)
+    if num_groups==1:
+        groups.append(lunchers)
+    else:
+        #Make random groups
+        for i in range(num_groups):
+            g=[]
+            for j in range(int(N/num_groups)):
+                if len(lunchers)>0:
+                    random_index=random.randint(0,len(lunchers)-1)
+                    g.append(lunchers.pop(random_index))
+            groups.append(g)
+
+    return groups
 
 def main():
     """
