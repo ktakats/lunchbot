@@ -7,9 +7,9 @@ slack_client = SlackClient(os.environ.get('SLACK_BOT_TOKEN'))
 lunchbot_id = None
 MENTION_REGEX = "^<@(|[WU].+?)>(.*)"
 #Keeps track if it's time to collect answers or not
-COLLECTING = False
+collecting = False
 COMMANDS = ["help", "start", "in", "stop"]
-LUNCHERS = []
+lunchers = []
 
 def parse_commands(slack_events, lunchbot_id):
     """
@@ -35,8 +35,9 @@ def handle_command(command, channel, user):
     """
     Gets the response from the respond_command function, and sends the answer.
     """
-    global COLLECTING
-    response, COLLECTING = respond_command(command, user, COLLECTING)
+    global collecting
+    global lunchers
+    response, collecting, lunchers = respond_command(command, user, collecting, lunchers)
     if response:
         slack_client.api_call(
             "chat.postMessage",
@@ -44,12 +45,11 @@ def handle_command(command, channel, user):
             text=response or default_response
         )
 
-def respond_command(command, user, COLLECTING):
+def respond_command(command, user, collecting, lunchers):
     """
     Returns a response to be forwarded to slack depending on the received command.
     """
     response = None
-    global LUNCHERS
     if command not in COMMANDS:
         response = "I don't understand. Type 'help' to see the available commands."
     elif command == COMMANDS[0]:
@@ -60,19 +60,19 @@ def respond_command(command, user, COLLECTING):
         stop - stops collecting responses and creates lunch groups.
         """
     elif command == COMMANDS[1]:
-        COLLECTING = True
-        LUNCHERS = []
+        collecting = True
+        lunchers = []
         response = "Ey! who is going to have lunch out today? Say 'in' to join!"
     elif command == COMMANDS[2]:
-        if COLLECTING==True:
-            if user not in LUNCHERS:
-                LUNCHERS.append(user)
+        if collecting==True:
+            if user not in lunchers:
+                lunchers.append(user)
         else:
             response = "It's not lunchtime yet."
     elif command == COMMANDS[3]:
-        COLLECTING = False
+        collecting = False
         response = "Time to make groups"
-    return response, COLLECTING
+    return response, collecting, lunchers
 
 def main():
     """

@@ -1,13 +1,10 @@
 import pytest
-from lunchbot import parse_commands, handle_command, LUNCHERS
+from lunchbot import parse_commands, handle_command
 from lunchbot import respond_command
 
 LUNCHBOT_ID = "U123"
 CHANNEL_ID ="C999999"
 USER_ID = "U987"
-
-def pytest_namespace():
-    return {'LUNCHERS': []}
 
 class TestCommandParser(object):
 
@@ -32,41 +29,39 @@ class TestCommandParser(object):
 class TestCommandResponse(object):
     def test_nonexistent_command(self):
         command = "hi"
-        response, _ = respond_command(command, USER_ID, False)
+        response, _, l = respond_command(command, USER_ID, False, [])
         assert response == "I don't understand. Type 'help' to see the available commands."
 
     def test_help_command(self):
         command = "help"
-        response, _ = respond_command(command, USER_ID, False)
+        response, _, l = respond_command(command, USER_ID, False, [])
         assert "start" in response
         assert "stop" in response
         assert "in" in response
 
     def test_start_command_response(self):
         command = "start"
-        response, c = respond_command(command, USER_ID, False)
+        response, c, l = respond_command(command, USER_ID, False, [])
         assert response == "Ey! who is going to have lunch out today? Say 'in' to join!"
         assert c == True
 
-    @pytest.fixture
     def test_start_command_resets_luncher_list(self):
-        pytest.LUNCHERS.append(USER_ID)
-        response, _ = respond_command("start", USER_ID, False)
-        assert len(pytest.LUNCHERS)==0
+        response, _, l = respond_command("start", USER_ID, False, [USER_ID])
+        assert len(l)==0
 
     def test_in_command_before_start(self):
         command = "in"
-        response, _ = respond_command(command, USER_ID, False)
+        response, _, l = respond_command(command, USER_ID, False, [])
         assert response == "It's not lunchtime yet."
 
-    @pytest.fixture
+
     def test_in_command_when_collecting(self):
-        response, _ = respond_command("in", USER_ID, True)
+        response, _, l = respond_command("in", USER_ID, True, [])
         assert response == None
-        assert len(pytest.LUNCHERS)>0
-        assert USER_ID in pytest.LUNCHERS
+        assert len(l)>0
+        assert USER_ID in l
 
     def test_stop_command_response(self):
-        response, c= respond_command("stop", USER_ID, True)
+        response, c, l= respond_command("stop", USER_ID, True, [])
         assert c==False
         assert response == "Time to make groups"
