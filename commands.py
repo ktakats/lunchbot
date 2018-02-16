@@ -1,6 +1,9 @@
 COMMANDS = ["help", "start", "in", "stop"]
 
 def respond_command(command):
+    """
+    Returns a response to be forwarded to slack depending on the received command.
+    """
     response = None
     if command not in COMMANDS:
         response = "I don't understand. Type 'help' to see the available commands."
