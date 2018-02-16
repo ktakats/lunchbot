@@ -67,25 +67,28 @@ class TestCommandResponse(object):
         lunchers = ["user1", "user2", "user3", "user4", "user5", "user6", "user7", "user8", "user9", "user10", "user11"]
         response, c, l= respond_command("stop", USER_ID, True, lunchers)
         assert c==False
+        print(response)
         assert "The lunch groups are" in response
+        assert "leader" in response
 
 class TestGroupMaking(object):
     def test_zero_people_lunching(self):
         lunchers=[]
-        groups=make_groups(lunchers)
+        groups, leaders=make_groups(lunchers)
         assert len(groups)==0
 
     def test_less_than_7_lunchers(self):
         lunchers = [USER_ID]
-        groups = make_groups(lunchers)
+        groups, leaders = make_groups(lunchers)
         assert len(groups)==1
 
     def test_more_than_7(self):
         lunchers=[]
         N=random.randint(8,100)
+        print(N)
         for i in range(N):
             lunchers.append(USER_ID)
-        groups = make_groups(lunchers)
+        groups, leaders = make_groups(lunchers)
         assert len(groups)==math.ceil(N/7.)
 
 """

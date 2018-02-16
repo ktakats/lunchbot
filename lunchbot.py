@@ -73,12 +73,14 @@ def respond_command(command, user, collecting, lunchers):
             response = "It's not lunchtime yet."
     elif command == COMMANDS[3]:
         collecting = False
-        groups = make_groups(lunchers)
+        groups, leaders = make_groups(lunchers)
         response = "The lunch groups are: \n"
         for i,group in enumerate(groups):
             response += "Group "+str(i)+ ": "
             for member in group:
-                response += "<@"+member + "> ,"
+                if member!=leaders[i]:
+                    response += "<@"+member + ">, "
+            response += "leader: <@"+leaders[i]+">"
             response +="\n"
     return response, collecting, lunchers
 
@@ -86,9 +88,10 @@ def make_groups(lunchers):
     N=len(lunchers)
     num_groups = math.ceil(N/7.)
     groups=[]
-    print(groups)
+    leaders = []
     if num_groups==1:
         groups.append(lunchers)
+        leaders.append(lunchers[random.randint(0, N-1)])
     else:
         #Make random groups
         for i in range(num_groups):
@@ -97,9 +100,12 @@ def make_groups(lunchers):
                 if len(lunchers)>0:
                     random_index=random.randint(0,len(lunchers)-1)
                     g.append(lunchers.pop(random_index))
+            leaders.append(g[random.randint(0, len(g)-1)])
             groups.append(g)
 
-    return groups
+    return groups, leaders
+
+
 
 def main():
     """
