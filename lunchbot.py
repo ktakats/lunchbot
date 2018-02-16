@@ -19,8 +19,8 @@ def parse_commands(slack_events, lunchbot_id):
         if event["type"]=="message" and not "subtype" in event:
             user_id, msg = parse_direct_mention(event["text"])
             if user_id == lunchbot_id:
-                return msg, event["channel"]
-    return None, None
+                return msg, event["channel"], event['user']
+    return None, None, None
 
 def parse_direct_mention(msg_text):
     """
@@ -31,23 +31,25 @@ def parse_direct_mention(msg_text):
         return (matches.group(1), matches.group(2).strip())
     return (None, None)
 
-def handle_command(command, channel):
+def handle_command(command, channel, user):
     """
     Gets the response from the respond_command function, and sends the answer.
     """
     global COLLECTING
-    response, COLLECTING = respond_command(command, COLLECTING)
-    slack_client.api_call(
-        "chat.postMessage",
-        channel=channel,
-        text=response or default_response
-    )
+    response, COLLECTING = respond_command(command, user, COLLECTING)
+    if response:
+        slack_client.api_call(
+            "chat.postMessage",
+            channel=channel,
+            text=response or default_response
+        )
 
-def respond_command(command, COLLECTING):
+def respond_command(command, user, COLLECTING):
     """
     Returns a response to be forwarded to slack depending on the received command.
     """
     response = None
+    global LUNCHERS
     if command not in COMMANDS:
         response = "I don't understand. Type 'help' to see the available commands."
     elif command == COMMANDS[0]:
@@ -63,7 +65,8 @@ def respond_command(command, COLLECTING):
         response = "Ey! who is going to have lunch out today? Say 'in' to join!"
     elif command == COMMANDS[2]:
         if COLLECTING==True:
-            response = "collecting"
+            if user not in LUNCHERS:
+                LUNCHERS.append(user)
         else:
             response = "It's not lunchtime yet."
     elif command == COMMANDS[3]:
@@ -79,21 +82,12 @@ def main():
         print("Bot is connected and running!")
         lunchbot_id = slack_client.api_call("auth.test")["user_id"]
         while True:
-            command, channel = parse_commands(slack_client.rtm_read(), lunchbot_id)
+            command, channel, user = parse_commands(slack_client.rtm_read(), lunchbot_id)
             if command:
-                handle_command(command, channel)
+                handle_command(command, channel, user)
             time.sleep(1)
     else:
         print("Connection failed!")
 
 if __name__=="__main__":
-    if slack_client.rtm_connect(with_team_state=False):
-        print("Bot is connected and running!")
-        lunchbot_id = slack_client.api_call("auth.test")["user_id"]
-        while True:
-            command, channel = parse_commands(slack_client.rtm_read(), lunchbot_id)
-            if command:
-                handle_command(command, channel)
-            time.sleep(1)
-    else:
-        print("Connection failed!")
+    main()
