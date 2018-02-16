@@ -7,6 +7,8 @@ from commands import respond_command
 slack_client = SlackClient(os.environ.get('SLACK_BOT_TOKEN'))
 lunchbot_id = None
 MENTION_REGEX = "^<@(|[WU].+?)>(.*)"
+#Keeps track if it's time to collect answers or not
+COLLECTING = False
 
 def parse_commands(slack_events, lunchbot_id):
     """
@@ -32,7 +34,7 @@ def handle_command(command, channel):
     """
     Gets the response from the respond_command function, and sends the answer.
     """
-    response = respond_command(command)
+    response, COLLECTING = respond_command(command, COLLECTING)
     slack_client.api_call(
         "chat.postMessage",
         channel=channel,
