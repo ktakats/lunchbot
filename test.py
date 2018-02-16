@@ -1,5 +1,6 @@
 import pytest
 from lunchbot import parse_commands, handle_command
+from commands import respond_command
 
 LUNCHBOT_ID = "U123"
 CHANNEL_ID ="C999999"
@@ -22,3 +23,16 @@ class TestCommandParser(object):
         command, channel = parse_commands(events, LUNCHBOT_ID)
         assert command == "hello"
         assert channel == CHANNEL_ID
+
+class TestCommandResponse(object):
+    def test_nonexistent_command(self):
+        command = "hi"
+        response = respond_command(command)
+        assert response == "I don't understand. Type 'help' to see the available commands."
+
+    def test_help_command(self):
+        command = "help"
+        response = respond_command(command)
+        assert "start" in response
+        assert "stop" in response
+        assert "in" in response
