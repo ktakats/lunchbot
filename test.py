@@ -1,5 +1,5 @@
 import pytest
-from lunchbot import parse_commands, handle_command, make_groups
+from lunchbot import parse_commands, handle_command, make_groups, pick_leaders
 from lunchbot import respond_command
 import random
 import math
@@ -74,12 +74,12 @@ class TestCommandResponse(object):
 class TestGroupMaking(object):
     def test_zero_people_lunching(self):
         lunchers=[]
-        groups, leaders=make_groups(lunchers)
+        groups=make_groups(lunchers)
         assert len(groups)==0
 
     def test_less_than_7_lunchers(self):
         lunchers = [USER_ID]
-        groups, leaders = make_groups(lunchers)
+        groups= make_groups(lunchers)
         assert len(groups)==1
 
     def test_more_than_7(self):
@@ -88,8 +88,10 @@ class TestGroupMaking(object):
         print(N)
         for i in range(N):
             lunchers.append(USER_ID)
-        groups, leaders = make_groups(lunchers)
+        groups = make_groups(lunchers)
         assert len(groups)==math.ceil(N/7.)
+
+
 
 """
 8 - 4 4
