@@ -78,7 +78,7 @@ def respond_command(command, user, collecting, lunchers):
         for i,group in enumerate(groups):
             response += "Group "+str(i)+ ": "
             for member in group:
-                response += member + " ,"
+                response += "<@"+member + "> ,"
             response +="\n"
     return response, collecting, lunchers
 
