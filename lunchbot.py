@@ -15,7 +15,11 @@ collecting = False
 COMMANDS = ["help", "start", "in", "stop", "set"]
 lunchers = []
 channels = []
+#Autorun settings: Thursday at 10:00
 AUTORUN = False
+autorun_day = 5 #Thursday
+autorun_hour = 17
+autorun_minute = 0
 
 def parse_commands(slack_events, lunchbot_id):
     """
@@ -62,25 +66,29 @@ def respond_command(command, user, collecting, lunchers):
     global AUTORUN
     if command not in COMMANDS:
         response = "I don't understand. Type 'help' to see the available commands."
-    elif command == COMMANDS[0]:
+    elif command == "help":
         response = """
         Available commands:\n
         start - starts collecting responses,\n
         in - signs up the user for lunch,\n
         stop - stops collecting responses and creates lunch groups,\n
-        set - sets the bot to start every Thursday at 10:00.
+        set - sets the bot to start every Thursday at 10:00. Right now autorun is
         """
-    elif command == COMMANDS[1]:
+        if AUTORUN:
+            response += "SET."
+        else:
+            response += "NOT set."
+    elif command == "start":
         collecting = True
         lunchers = []
         response = "Ey! who is going to have lunch out today? Say 'in' to join!"
-    elif command == COMMANDS[2]:
+    elif command == "in":
         if collecting==True:
             if user not in lunchers:
                 lunchers.append(user)
         else:
             response = "It's not lunchtime yet."
-    elif command == COMMANDS[3]:
+    elif command == "stop":
         collecting = False
         groups = make_groups(lunchers)
         leaders=pick_leaders(groups)
@@ -92,11 +100,14 @@ def respond_command(command, user, collecting, lunchers):
                     response += "<@"+member + ">, "
             response += "leader: <@"+leaders[i]+">"
             response +="\n"
-    elif command == COMMANDS[4]:
+    elif command == "set":
         AUTORUN = True
     return response, collecting, lunchers
 
 def make_groups(lunchers):
+    """
+    Takes the list of the people that signed up for lunch, calculates the number of groups such as no group has more than 7 members, and each group is more or less the same size, then assignes the members to groups randomly. Returns a list of groups.
+    """
     N=len(lunchers)
     num_groups = math.ceil(N/7.)
     groups=[]
@@ -117,6 +128,9 @@ def make_groups(lunchers):
     return groups
 
 def pick_leaders(groups):
+    """
+    Takes the list of groups and randomly picks a leader for each group. Returns the list of leaders.
+    """
     leaders = []
     for group in groups:
         leader = group[random.randint(0, len(group)-1)]
@@ -136,7 +150,7 @@ def main():
                 handle_command(command, channel, user)
             if AUTORUN==True and not collecting:
                 now = datetime.datetime.now()
-                if now.weekday()==4 and now.hour==19 and now.minute==0:
+                if now.weekday()==autorun_day and now.hour==autorun_hour and now.minute==autorun_minute:
                     for channel in channels:
                         handle_command('start', channel, lunchbot_id)
             time.sleep(1)

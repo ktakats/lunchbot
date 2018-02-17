@@ -82,7 +82,7 @@ class TestGroupMaking(object):
         groups= make_groups(lunchers)
         assert len(groups)==1
 
-    def test_more_than_7(self):
+    def test_more_than_7_lunchers(self):
         lunchers=[]
         N=random.randint(8,100)
         print(N)
@@ -91,18 +91,13 @@ class TestGroupMaking(object):
         groups = make_groups(lunchers)
         assert len(groups)==math.ceil(N/7.)
 
-
-
-"""
-8 - 4 4
-9 - 4 5
-10 - 5 5
-11 - 5 6
-12 - 6 6
-13 - 6 7
-14 - 7 7
-15 - 5 5 5
-
-num groups ceil(N/7)
-N/numg,
-"""
+    def test_leader_picking(self):
+        lunchers=[]
+        N=random.randint(8,100)
+        print(N)
+        for i in range(N):
+            lunchers.append(USER_ID)
+        groups = make_groups(lunchers)
+        leaders = pick_leaders(groups)
+        assert len(leaders) == len(groups)
+        
