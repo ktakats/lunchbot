@@ -13,12 +13,13 @@ MENTION_REGEX = "^<@(|[WU].+?)>(.*)"
 #Keeps track if it's time to collect answers or not
 collecting = False
 COMMANDS = ["help", "start", "in", "stop", "set", "unset"]
+WEEKDAYS = ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"]
 lunchers = []
 channels = []
-#Autorun settings: Thursday at 10:00
+#Default autorun settings: Thursday at 10:00
 AUTORUN = False
-autorun_day = 5 #Thursday
-autorun_hour = 17
+autorun_day = 3 #Thursday
+autorun_hour = 10
 autorun_minute = 0
 
 def parse_commands(slack_events, lunchbot_id):
@@ -63,12 +64,11 @@ def respond_command(command, user, collecting, lunchers):
     """
     response = None
     global AUTORUN
-    if command not in COMMANDS:
-        response = "I don't understand. Type 'help' to see the available commands."
-    elif command == "help":
+    if command == "help":
         is_autorun = ""
         if AUTORUN:
-            is_autorun = "SET.\n"
+            day=WEEKDAYS[autorun_day][0].upper()+WEEKDAYS[autorun_day][1:]
+            is_autorun = "SET to {a}, {b}:{c}.\n".format(a=day, b=autorun_hour, c=autorun_minute)
         else:
             is_autorun = "NOT set.\n"
         response = """
@@ -76,9 +76,10 @@ def respond_command(command, user, collecting, lunchers):
         start - starts collecting responses,\n
         in - signs up the user for lunch,\n
         stop - stops collecting responses and creates lunch groups,\n
-        set - sets the bot to start every Thursday at 10:00. Right now autorun is {}
+        set - sets the bot to start at the default time, Thursday, 10:00.\n
+        set DAY HOUR:MINUTE - sets the bot to start at given time. E.g. 'set Friday 11:00'.  Right now autorun is {d}.
         unset - Stops autorun. Now you have to start the bot with the start command.
-        """.format(is_autorun)
+        """.format(d=is_autorun)
 
     elif command == "start":
         collecting = True
@@ -102,10 +103,15 @@ def respond_command(command, user, collecting, lunchers):
                     response += "<@"+member + ">, "
             response += "leader: <@"+leaders[i]+">"
             response +="\n"
-    elif command == "set":
+    elif command.startswith("set"):
         AUTORUN = True
+        d, h, m = set_autorun_time(command)
+        d=WEEKDAYS[d]
+        response = "Autorun set to: {d}, {h}:{m}".format(d=d[0].upper()+d[1:], h=h, m=m)
     elif command == "unset":
         AUTORUN = False
+    else:
+        response = "I don't understand. Type 'help' to see the available commands."
     return response, collecting, lunchers
 
 def make_groups(lunchers):
@@ -140,6 +146,30 @@ def pick_leaders(groups):
         leader = group[random.randint(0, len(group)-1)]
         leaders.append(leader)
     return leaders
+
+def set_autorun_time(command):
+    global autorun_day, autorun_hour, autorun_minute
+    set_time = command.split(" ")
+    if len(set_time)==3:
+        if set_time[1].lower() in WEEKDAYS:
+            try:
+                time_details=set_time[2].split(":")
+            except:
+                time_details=[autorun_hour, autorun_minute]
+            if len(time_details)==2:
+                try:
+                    hour = int(time_details[0])
+                except:
+                    hour = autorun_hour
+                try:
+                    minute = int(time_details[1])
+                except:
+                    minute = autorun_minute
+                if hour>=0 and hour<23 and minute>=0 and minute<=59:
+                    autorun_day = WEEKDAYS.index(set_time[1].lower())
+                    autorun_hour = hour
+                    autorun_minute = minute
+    return autorun_day, autorun_hour, autorun_minute
 
 def main():
     """

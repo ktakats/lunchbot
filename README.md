@@ -47,4 +47,5 @@ Available commands:
 * in - signs you up for lunch
 * stop - stops collecting sign-ups and creates the groups
 * set - sets autorun, the bot will start collecting sign-ups automatically on Thursday at 10:00.
+* set DAY HOUR:MINUTE - sets autorun to the given time. E.g. "set Friday 11:00".
 * unset - stops autorun. Now you have to start collecting lunch sign-ups with the 'start' command.

@@ -1,5 +1,5 @@
 import pytest
-from lunchbot import parse_commands, handle_command, make_groups, pick_leaders
+from lunchbot import parse_commands, handle_command, make_groups, pick_leaders, set_autorun_time
 from lunchbot import respond_command
 import random
 import math
@@ -100,4 +100,20 @@ class TestGroupMaking(object):
         groups = make_groups(lunchers)
         leaders = pick_leaders(groups)
         assert len(leaders) == len(groups)
-        
+
+class TestAutorunSet(object):
+    def test_setting_time(self):
+        command = "set Friday 10:00"
+        response = set_autorun_time(command)
+        assert response[0] == 4
+        assert response[1] == 10
+        assert response[2] == 0
+
+    def test_wrong_command(self):
+        autorun_day = 3 #Thursday
+        autorun_hour = 10
+        autorun_minute = 0
+        command = "set Sunday 10"
+        response = set_autorun_time(command)
+        print(response)
+        assert response[0] != 6 
