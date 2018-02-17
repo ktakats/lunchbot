@@ -12,7 +12,7 @@ lunchbot_id = None
 MENTION_REGEX = "^<@(|[WU].+?)>(.*)"
 #Keeps track if it's time to collect answers or not
 collecting = False
-COMMANDS = ["help", "start", "in", "stop", "set"]
+COMMANDS = ["help", "start", "in", "stop", "set", "unset"]
 lunchers = []
 channels = []
 #Autorun settings: Thursday at 10:00
@@ -66,17 +66,20 @@ def respond_command(command, user, collecting, lunchers):
     if command not in COMMANDS:
         response = "I don't understand. Type 'help' to see the available commands."
     elif command == "help":
+        is_autorun = ""
+        if AUTORUN:
+            is_autorun = "SET.\n"
+        else:
+            is_autorun = "NOT set.\n"
         response = """
         Available commands:\n
         start - starts collecting responses,\n
         in - signs up the user for lunch,\n
         stop - stops collecting responses and creates lunch groups,\n
-        set - sets the bot to start every Thursday at 10:00. Right now autorun is
-        """
-        if AUTORUN:
-            response += "SET."
-        else:
-            response += "NOT set."
+        set - sets the bot to start every Thursday at 10:00. Right now autorun is {}
+        unset - Stops autorun. Now you have to start the bot with the start command.
+        """.format(is_autorun)
+
     elif command == "start":
         collecting = True
         lunchers = []
@@ -101,6 +104,8 @@ def respond_command(command, user, collecting, lunchers):
             response +="\n"
     elif command == "set":
         AUTORUN = True
+    elif command == "unset":
+        AUTORUN = False
     return response, collecting, lunchers
 
 def make_groups(lunchers):
