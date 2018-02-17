@@ -1,1 +1,1 @@
-web: python lunchbot.py
+worker: python lunchbot.py
