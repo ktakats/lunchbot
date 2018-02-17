@@ -6,12 +6,12 @@ A simple slack bot to organize your lunch groups written in python.
 
 1. Start a virtual environment.
 ```
-virtualenv -p python3 lunchbot
+virtualenv -p python3 mylunchbot
 ```
 
 2. Clone the code,
 ```
-cd lunchbot
+cd mylunchbot
 git clone https://github.com/ktakats/lunchbot.git
 ```
 
@@ -31,6 +31,8 @@ export SLACK_BOT_TOKEN="xoxb-<your-token>"
 python lunchbot.py
 ```
 
+6. Invite the bot to your chosen channel. Chat away.
+
 +1 Run the tests
 ```
 pytest test.py
@@ -44,4 +46,4 @@ Available commands:
 * start - starts collecting who want to go to lunch
 * in - signs you up for lunch
 * stop - stops collecting sign-ups and creates the groups
-* set - sets autorun, the bot will start collecting sign-ups automatically on Thursday at 10:00. 
+* set - sets autorun, the bot will start collecting sign-ups automatically on Thursday at 10:00.
