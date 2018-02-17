@@ -49,7 +49,6 @@ def handle_command(command, channel, user):
     """
     global collecting
     global lunchers
-    #print(slack_client.api_call('channels.history', token='xoxp-316574396006-315722830194-315553324336-4cbd36fe81aeefff9a2ea4a27c6ea1a5', channel=channel))
     response, collecting, lunchers = respond_command(command, user, collecting, lunchers)
     if response:
         slack_client.api_call(
