@@ -110,6 +110,7 @@ def respond_command(command, user, collecting, lunchers):
         response = "Autorun set to: {d}, {h}:{m}".format(d=d[0].upper()+d[1:], h=h, m=m)
     elif command == "unset":
         AUTORUN = False
+        response = "Autorun is not set."
     else:
         response = "I don't understand. Type 'help' to see the available commands."
     return response, collecting, lunchers
