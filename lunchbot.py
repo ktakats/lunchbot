@@ -131,10 +131,7 @@ def make_groups(lunchers):
                 if len(lunchers)>0:
                     random_index=random.randint(0,len(lunchers)-1)
                     group.append(lunchers.pop(random_index))
-            #Pick a random leader from the group
-
             groups.append(group)
-
     return groups
 
 def pick_leaders(groups):
